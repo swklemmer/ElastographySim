@@ -1,6 +1,6 @@
 %% Load aux functions
 addpath("lib/Auxiliar/")
-fem_file = "input/u_10000.h5";
+fem_file = "input/u_4000.h5";
 
 %% Read info from h5 file
 [t_dim, x_dim, y_dim, z_dim, u_mat_x, u_mat_z] = load_mid_u(fem_file);

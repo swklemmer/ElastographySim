@@ -74,9 +74,9 @@ load(sprintf('output/s_%d_d%d_3d.mat', E, density), 'sonograms', 'img_x', 'img_z
 fig = figure(1);
 fig.Position = [0, 0, 1000, 500];
 image_obj = imagesc(img_z, img_x, squeeze(sonograms(1, :, :)));
-hold on
-scatter(scat_pos((scat_pos(:, 2) < 1e-1) & (scat_pos(:, 2) > 0), 3), scat_pos((scat_pos(:, 2) < 1e-1) & (scat_pos(:, 2) > 0), 1), [], 'r')
-hold off
+% hold on
+% scatter(scat_pos((scat_pos(:, 2) < 1e-1) & (scat_pos(:, 2) > 0), 3), scat_pos((scat_pos(:, 2) < 1e-1) & (scat_pos(:, 2) > 0), 1), [], 'r')
+% hold off
 zlim([0, max(sonograms, [], 'all')]);
 clim([0, max(sonograms, [], 'all')]);
 ylabel('Lateral Distance (X) [m]')

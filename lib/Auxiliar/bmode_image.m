@@ -1,5 +1,5 @@
 function [img_z, bmode_img] = bmode_image(trans_tx, trans_rx, sim_data, ...
-                                          scat_pos, img_x, t_end, n_active)
+                                          scat_pos, img_x, t_end)
 %BMODE_IMAGE Simulate B-Mode image for a given position of A-lines. It
 %automatically finds the active elements, their apodization and focus.
 
@@ -11,7 +11,7 @@ n_elem = sim_data(4);    % Number of elements
 elem_w = sim_data(5);    % Element width [m]
 tx_focus = sim_data(7);  % Transmit focus depth [m]
 alpha = sim_data(8);     % Attenuation coefficient [dB/m/Hz]
-
+n_active = sim_data(9);  % Active elements during reception
 % Prealocate data
 rf_data = zeros(length(img_x), t_end);
 hann_win = hanning(n_active);
@@ -22,8 +22,8 @@ for i = 1:length(img_x)
     center_elem = n_elem / 2 + floor(img_x(i) / elem_w + 0.5);
 
     % Define active elements around it
-    left_elem = center_elem - (n_active - 1) / 2;
-    right_elem = center_elem + (n_active - 1) / 2;
+    left_elem = center_elem - n_active / 2 - 1;
+    right_elem = center_elem + n_active / 2;
     active_elem = max(1, left_elem):min(right_elem, n_elem);
 
     % Activate receive elements through apodization
@@ -38,11 +38,11 @@ for i = 1:length(img_x)
     end    
 
     xdc_apodization(trans_rx, 0, apodization);
+    xdc_apodization(trans_tx, 0, apodization);
 
     % Activate single transmit element
-    apodization = zeros(1, n_elem);
-    apodization(center_elem) = 1;
-    xdc_apodization(trans_tx, 0, apodization);
+    %apodization = zeros(1, n_elem);
+    %apodization(center_elem) = 1;
 
     % Focus transducer
     xdc_center_focus(trans_tx, [img_x(i), 0, 0]);
