@@ -24,7 +24,7 @@ imp_res = imp_res .* hanning(length(imp_res))';
 xdc_impulse(trans, imp_res)
 
 % Define transducer's input voltaje signal
-pulser_v = sin(2 * pi * f0 * (0:1/fs:2/f0));
+pulser_v = sin(2 * pi * f0 * (0:1/fs:1/f0));
 xdc_excitation(trans, pulser_v);
 
 % Activate baffle

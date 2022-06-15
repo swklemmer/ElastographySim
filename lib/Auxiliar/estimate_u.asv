@@ -1,6 +1,5 @@
 function [est_x, est_z, u_x_est, u_z_est] = estimate_u(img_x, img_z, ...
-                                        sonograms, win_len, win_hop, ...
-                                        fine_prec, graf)
+                                       sonograms, win_len, win_hop, fine_prec, graf)
 %ESTIMATE_U Estimate X & Z displacements from a sequence of sonograms. Uses
 %interpolation of the correlation function to achive sub-sample accuracy.
 
@@ -21,10 +20,8 @@ sonograms = [flip(sonograms(:, 2:(w_x-1)/2, :), 2), sonograms];
 img_x = [-flip(img_x(2:(w_x-1)/2)), img_x];
 
 % Define window hop
-% hop_x = max(floor((1 - overlap) * w_x), 1); % Window hop size [samples]
-% hop_z = max(floor((1 - overlap) * w_z), 1); % Window hop size [samples]
-hop_x = max(floor(win_hop / dx), 1); % Window hop size [samples]
-hop_z = max(floor(win_hop / dz), 1); % Window hop size [samples]
+hop_x = max(floor((1 - overlap) * w_x), 1); % Window hop size [samples]
+hop_z = max(floor((1 - overlap) * w_z), 1); % Window hop size [samples]
 N_x = floor((length(img_x) - w_x) / hop_x); % Number of windows
 N_z = floor((length(img_z) - w_z) / hop_z); % Number of windows
 

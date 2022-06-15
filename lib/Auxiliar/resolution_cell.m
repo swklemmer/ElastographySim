@@ -12,9 +12,9 @@ alpha = sim_data(8);     % Attenuation coefficient [dB/m/Hz]
 n_active = sim_data(9);  % Nr. of active elements
 
 % Create analysis volume
-x_dim = (-1:0.01:1)*1e-3;
-y_dim = (-1:0.01:1)*1e-3;
-z_dim = (-6:0.1:6)*1e-3 + tx_focus;
+x_dim = (-2:0.02:2)*1e-3;
+y_dim = (-2:0.02:2)*1e-3;
+z_dim = (-3:0.02:5)*1e-3 + tx_focus;
 
 % Configurate simulation
 simulation_config(sim_data);

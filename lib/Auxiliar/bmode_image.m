@@ -22,7 +22,7 @@ for i = 1:length(img_x)
     center_elem = n_elem / 2 + floor(img_x(i) / elem_w + 0.5);
 
     % Define active elements around it
-    left_elem = center_elem - n_active / 2 - 1;
+    left_elem = center_elem - n_active / 2 + 1;
     right_elem = center_elem + n_active / 2;
     active_elem = max(1, left_elem):min(right_elem, n_elem);
 
@@ -38,11 +38,11 @@ for i = 1:length(img_x)
     end    
 
     xdc_apodization(trans_rx, 0, apodization);
-    xdc_apodization(trans_tx, 0, apodization);
 
     % Activate single transmit element
-    %apodization = zeros(1, n_elem);
-    %apodization(center_elem) = 1;
+    apodization = zeros(1, n_elem);
+    apodization(center_elem) = 1;
+    xdc_apodization(trans_tx, 0, apodization);
 
     % Focus transducer
     xdc_center_focus(trans_tx, [img_x(i), 0, 0]);

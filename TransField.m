@@ -5,7 +5,8 @@ field_init(0)
 graf = 1;
 
 %% Simulation paramters
-% Siemens VF10-5 = [fs, c_c, f0, n_elem, elem_w, elv_focus, tx_focus, att] 
+% Siemens VF10-5
+% = [fs, c_c, f0, n_elem, elem_w, elv_focus, tx_focus, att, n_active]
 sim_data = [50e6, 1540, 6.67e6, 128, 0.3e-3, 20e-3, 10e-3, 70e-6, 64];
 
 %% Calculate resolution cell volume
