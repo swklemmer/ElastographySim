@@ -19,13 +19,13 @@ trans_rx = create_transducer(sim_data);
 sprintf("%.2f : Configuration ready", toc())
 
 %% Create dummy displacement
-disp_x = (-1:0.1:10) * 1e-3;
-disp_y = (-1:1:1) * 1e-3;
-disp_z = (-1:0.1:30) * 1e-3;
-[y_grid, x_grid, z_grid] = meshgrid(disp_y, disp_x, disp_z);
+real_x = (-1:0.1:10) * 1e-3;
+real_y = (-1:1:1) * 1e-3;
+real_z = (-1:0.1:20) * 1e-3;
+[y_grid, x_grid, z_grid] = meshgrid(real_y, real_x, real_z);
 
-u_x = zeros(length(disp_x), 3, length(disp_z));
-u_y = zeros(length(disp_x), 3, length(disp_z));
+u_x = zeros(length(real_x), 3, length(real_z));
+u_y = zeros(length(real_x), 3, length(real_z));
 disp_mag = 0.1e-3;
 %u_z = disp_mag * ones(length(disp_x), 3, length(disp_z));
 u_z = disp_mag * exp(-((x_grid - 3e-3).^2 + (z_grid - 3e-3).^2) / ...
@@ -36,7 +36,8 @@ u_z_norm = squeeze(u_z(:, 2, :)) ./ max(u_z(:, 2, :), [], 'all');
 
 %% Iterate over parameters
 
-density_list = [0.1, 0.4, 0.8, 1.5, 2.5, 4, 6, 9, 12];
+%density_list = [0.1, 0.4, 0.8, 1.5, 2.5, 4, 6, 9, 12];
+density_list = [6];
 errors = zeros(length(density_list), 2);
 
 for i = 1:length(density_list)
@@ -46,18 +47,20 @@ for i = 1:length(density_list)
     density = density_list(i) / (cell_vol * 1e9); % [scatters/mm^3]
     
     % Dispose scatterers at random
-    scat_pos = create_scatterers_3d([0, 6e-3], [0, 0.3e-3], [0, 6e-3], density);
+    phan_dim = [6, 6] * 1e-3;
+    scat_pos = create_scatterers_3d([0, phan_dim(1)], [0, 0.3e-3], ...
+                                    [0, phan_dim(2)], density);
     %scat_pos = [3, 0, 3; 4, 0, 4] * 1e-3;
     fprintf("\n%.2f : Scatterers ready\n", toc())
 
     %% Apply displacement to scatterers
-    new_scat_pos = apply_u(scat_pos, disp_x, disp_y, disp_z, u_x, u_y, u_z);
+    new_scat_pos = apply_u(scat_pos, real_x, real_y, real_z, u_x, u_y, u_z);
     fprintf("\n%.2f : Displacement ready\n", toc())
     
     %% Generate pre-deformation sonogram
     img_x = (0:0.05:8) * 1e-3;
     [img_z, bmode_img] = bmode_image(trans_tx, trans_rx, sim_data, ...
-                                             scat_pos, img_x, 2e3);
+                                             scat_pos, img_x, 1e3);
     img_z = img_z - 0.62e-3; % Why?
     
     sonograms = zeros(2, length(img_x), length(img_z));
@@ -66,7 +69,7 @@ for i = 1:length(density_list)
 
     %% Calculate post-deformation sonogram
     [~, bmode_img] = bmode_image(trans_tx, trans_rx, sim_data, ...
-                                     new_scat_pos, img_x, 2e3);
+                                     new_scat_pos, img_x, 1e3);
     sonograms(2, :, :) = bmode_img;
     fprintf("\n%.2f : Post B-Mode ready\n", toc())
 
@@ -76,92 +79,50 @@ for i = 1:length(density_list)
     fine_prec = 0.1;   % Fine precission [%/%]
     [est_x, est_z, u_x_est, u_z_est] = estimate_u(img_x, img_z, sonograms,...
                                         win_len, win_hop, fine_prec, 0);
-    sprintf("%.2f : Disp. Estimation ready", toc())
     
     % Apply filter to estimation
-    u_est_filt = conv2(medfilt2(squeeze(u_z_est(1, :, :)), [7, 7]), ones(3, 3)/9, 'same');
+    u_est_filt = conv2(...
+                       medfilt2(squeeze(u_z_est(1, :, :)), [7, 7]),...
+                       ones(3, 3)/9, 'same');
 
     % Normalize estimation
     u_est_filt = u_est_filt ./ max(u_est_filt, [], 'all');
-    
-    %% Calculate error before filtering
-    [~, mean_err] = u_error(est_x, est_z, squeeze(u_z_est(1, :, :)), ...
-                            disp_x, disp_z, u_z_norm);
+    fprintf("\n%.2f : Disp. Estimation ready\n", toc())
+
+    %% Calculate error after filtering
+    [~, mean_err] = estimation_error(est_x, est_z, squeeze(u_z_est), ...
+                                     real_x, real_z, u_z_norm, phan_dim);
     errors(i, 1) = mean_err;
 
     % Calculate error after filtering
-    [u_z_err, mean_err] = u_error(est_x, est_z, u_est_filt, ...
-                                  disp_x, disp_z, u_z_norm);
+    [u_z_err, mean_err] = estimation_error(est_x, est_z, u_est_filt, ...
+                                     real_x, real_z, u_z_norm, phan_dim);
     errors(i, 2) = mean_err;
 
     %% Show results
     if ~graf
         fig = figure(1);
-        fig.Position = [0, 0, 500, 500];
-        imagesc(img_z, img_x, squeeze(sonograms(1, :, :)));
-    %     hold on
-    %     scatter(scat_pos(:, 3), scat_pos(:, 1), [],'red')
-    %     hold off
-        ylabel('Lateral Distance (X) [m]')
-        xlabel('Depth (Z) [m]')
-        title('First Sonogram')
-        colormap(jet)
-        colorbar
+        fig.Position = [0, 500, 500, 300];
+        show_sonogram(img_x, img_z, sonograms, 1e-23, phan_dim,...
+                      1, 'First Sonogram');
     
         fig = figure(2);
-        fig.Position = [500, 0, 500, 500];
-        imagesc(img_z, img_x, squeeze(sonograms(2, :, :)));
-    %     hold on
-    %     scatter(new_scat_pos(:, 3), new_scat_pos(:, 1), [],'red')
-    %     hold off
-        ylabel('Lateral Distance (X) [m]')
-        xlabel('Depth (Z) [m]')
-        title('Second Sonogram')
-        colormap(jet)
-        colorbar
+        fig.Position = [300, 500, 500, 300];
+        show_sonogram(img_x, img_z, sonograms, 1e-23, phan_dim,...
+                      2, 'Second Sonogram');
     
         figure(3)
-        scatter(scat_pos(:, 3), scat_pos(:, 1))
-        hold on
-        scatter(new_scat_pos(:, 3), new_scat_pos(:, 1))
-        hold off
-        axis ij
-        axis([img_z(1), img_z(end), img_x(1), img_x(end)])
-        title('Scatterer Position')
-        xlabel('Depth (m)')
-        ylabel('Lateral position (m)')
-        legend({'Pre', 'Post'})
+        fig.Position = [900, 500, 500, 300];
+        show_scat_disp(scat_pos, new_scat_pos, phan_dim)
     end
     
     if graf
         fig = figure(4);
         fig.Position = [0, 100, 1500, 500];
-        sgtitle('Normalized Z Displacement') 
-    
-        ax1 = subplot(1, 3, 1);
-        fig_mesh1 = mesh(est_z, est_x, u_est_filt);
-        zlim([0, 1.2])
-        clim([0, 1.2])
-        view(30, 30)
-        title('Estimated')
-    
-        ax2 = subplot(1, 3, 2);
-        fig_mesh2 = mesh(disp_z, disp_x, u_z_norm);
-        zlim([0, 1.2])
-        clim([0, 1.2])
-        title('Real')
-    
-        ax3 = subplot(1, 3, 3);
-        fig_mesh3 = mesh(est_z, est_x, u_z_err);
-        title(sprintf('Mean Abs. Error: %.2f A.U', errors(i, 2)))
-        colorbar
-    
-        Link = linkprop([ax1, ax2, ax3],...
-                {'CameraUpVector', 'CameraPosition', 'CameraTarget', ...
-                'XLim', 'YLim', 'ZLim'});
-        setappdata(fig, 'StoreTheLink', Link);
-        
-        saveas(fig, sprintf("out_fig/est_d%.1f_win_%.2f.fig", density, win_len*1e3))
+        [~, ~, ~] = show_disp_error(real_x, real_z, u_z_norm, ...
+                                    est_x, est_z, u_est_filt,...
+                                    u_z_err, errors(i, 2), phan_dim);
+        %saveas(fig, sprintf("out_fig/est_d%.1f_win_%.2f.fig", density, win_len*1e3))
     end
 end
 
@@ -172,4 +133,3 @@ save('out_fig/density_experiment.mat', 'errors', 'density_list')
 xdc_free(trans_tx)
 xdc_free(trans_rx)
 field_end()
-fprintf("\n%.2f : Post B-Mode ready\n", toc())
