@@ -12,6 +12,7 @@ elem_w = sim_data(5);    % Element width [m]
 tx_focus = sim_data(7);  % Transmit focus depth [m]
 alpha = sim_data(8);     % Attenuation coefficient [dB/m/Hz]
 n_active = sim_data(9);  % Active elements during reception
+
 % Prealocate data
 rf_data = zeros(length(img_x), t_end);
 hann_win = hanning(n_active);
