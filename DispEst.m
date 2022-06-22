@@ -1,8 +1,8 @@
 addpath('lib/Auxiliar/')
 addpath('lib/poly2D/')
-graf = 0;
+graf = 1;
 E = 6000;       % Young's Modulus [Pa]
-density = 28.7; % [scatters/cell]
+density = 28.7; % [scatters/mm^3]
 
 win_len = 1.5e-3;  % Window size [m]
 win_hop = 0.15e-3; % Hop between windows [m]
@@ -31,10 +31,10 @@ end
 %% Estimate displacement
 [est_x, est_z, u_x_est, u_z_est] = estimate_u(img_x, img_z, ...
                                         sonograms, win_len, win_hop, ...
-                                        fine_prec, graf);
+                                        fine_prec, 0);
 
 %% Save results
-save(sprintf('output/u_est_%d_d%d.mat', E, density),...
+save(sprintf('output/u_est_%d_d%.1f.mat', E, density),...
     'u_x_est', 'u_z_est', 'est_x', 'est_z')
 
 %% Import real and estimated displacement
@@ -64,7 +64,7 @@ if graf
                                 est_x, est_z, squeeze(u_filt(1, :, :)), ...
                                 [8, 15]*1e-3);
     fig = figure(1);
-    fig.Position = [0, 0, 1000, 300];
+    fig.Position = [0, 300, 1200, 400];
     [img_real, img_est, img_err] = show_disp_error(...
                                 x_dim, z_dim, squeeze(u_z(2, :, :)), ...
                                 est_x, est_z, squeeze(u_filt(1, :, :)), ...

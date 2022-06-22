@@ -19,9 +19,10 @@ trans_rx = create_transducer(sim_data);
 cell_vol = resolution_cell(sim_data, 0);
 density = 6 / (cell_vol * 1e9); % [scatters/mm^3]
 
-% Import FEM model info
-for E = [8500, 4000, 6000, 10000]
+%%
+for E = [6000, 4000, 8500, 10000]
 
+    % Import FEM model info
     fem_file = sprintf("input/u_%d.h5", E);
     
     % Read info from h5 file
@@ -70,8 +71,8 @@ xdc_free(trans_tx)
 xdc_free(trans_rx)
 field_end()
 
-%% Show results
-E = 8500;    % Young's Modulus [Pa]
+%% Load Sonograms
+E = 6000;    % Young's Modulus [Pa]
 density = 6 / (cell_vol * 1e9); % [scatters/mm^3]
 load(sprintf('output/s_%d_d%.1f.mat', E, density), 'sonograms', 'img_x', 'img_z');
 
@@ -79,9 +80,10 @@ load(sprintf('output/s_%d_d%.1f.mat', E, density), 'sonograms', 'img_x', 'img_z'
 gamma = 1e23;
 sonograms_log = log(1 + gamma * sonograms);
 
+% Show results
 fig = figure(1);
-fig.Position = [0, 0, 500, 250];
+fig.Position = [0, 500, 500, 250];
 img = show_sonogram(img_x, img_z, sonograms_log,...
-    max(sonograms_log, [], 'all'), [10, 15]*1e-3, 1, 'Sonogram Sequence');
+    0, [10, 15]*1e-3, 1, 'Sonogram Sequence');
 
 show_sequence(sonograms_log, img)
