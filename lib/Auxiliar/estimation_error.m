@@ -1,5 +1,5 @@
-function [u_err, mean_err] = estimation_error(est_x, est_z, u_est, ...
-                                     real_x, real_z, u_real, phan_dim)
+function [u_err, mean_err] = estimation_error(real_x, real_z, u_real,...
+                                            est_x, est_z, u_est, phan_dim)
 %U_ERROR Calculates absolute error between estimated and real displacement.
 % Both are 2D matrices.
 

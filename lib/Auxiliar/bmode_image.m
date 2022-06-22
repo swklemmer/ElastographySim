@@ -42,7 +42,7 @@ for i = 1:length(img_x)
 
     % Activate single transmit element
     apodization = zeros(1, n_elem);
-    apodization(center_elem) = 1;
+    apodization(center_elem:center_elem+1) = 1;
     xdc_apodization(trans_tx, 0, apodization);
 
     % Focus transducer
