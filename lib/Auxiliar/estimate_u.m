@@ -14,7 +14,7 @@ dz = img_z(2) - img_z(1);
 w_x = 1 + 2 * ceil(win_len / dx / 2); % Uneven window length [samples]
 w_z = 1 + 2 * ceil(win_len / dz / 2); % Uneven window length [samples]
 
-% Prepare borders with reflection
+% Create reflection along x=0 axis
 sonograms = [flip(sonograms(:, 2:(w_x-1)/2, :), 2), sonograms];
 img_x = [-flip(img_x(2:(w_x-1)/2)), img_x];
 

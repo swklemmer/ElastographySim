@@ -44,8 +44,6 @@ for x = 1:length(x_dim)
     ttpeak(x) = hres_dim(peak_ind);
 end
 
-
-
 % Fit linear regression
 fitted_line = polyfit(x_dim(min_x:max_x), ttpeak(min_x:max_x), 1);
 C_fem = 1/fitted_line(1);
