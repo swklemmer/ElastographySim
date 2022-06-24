@@ -9,8 +9,6 @@ sonograms = sonograms(:, :, img_z >= 2e-3);
 img_z = img_z(img_z >= 2e-3);
 
 % Generate windows
-overlap = 0.9;
-
 dx = img_x(2) - img_x(1);
 dz = img_z(2) - img_z(1);
 w_x = 1 + 2 * ceil(win_len / dx / 2); % Uneven window length [samples]
@@ -21,8 +19,6 @@ sonograms = [flip(sonograms(:, 2:(w_x-1)/2, :), 2), sonograms];
 img_x = [-flip(img_x(2:(w_x-1)/2)), img_x];
 
 % Define window hop
-% hop_x = max(floor((1 - overlap) * w_x), 1); % Window hop size [samples]
-% hop_z = max(floor((1 - overlap) * w_z), 1); % Window hop size [samples]
 hop_x = max(floor(win_hop / dx), 1); % Window hop size [samples]
 hop_z = max(floor(win_hop / dz), 1); % Window hop size [samples]
 N_x = floor((length(img_x) - w_x) / hop_x); % Number of windows
@@ -48,7 +44,7 @@ u_z_est = zeros(size(sonograms, 1) - 1, N_x, N_z);
 %imagesc(img_z, img_x, squeeze(sonograms(1, :, :)));
 
 for t = 1:size(sonograms, 1)-1
-    tic()
+    if graf; tic(); end
     for x = 1:N_x
         for z = 1:N_z
 
@@ -97,27 +93,24 @@ for t = 1:size(sonograms, 1)-1
 
             figure(2)
             imagesc(corr_z, corr_x, win_corr);
-            %imagesc(win_corr);
             zlim([0, 1])
             title("Correlation between windows")
             
             figure(3)
             imagesc((-2:fine_prec:2), (-2:fine_prec:2), fine_xcorr);
-            %imagesc(fine_xcorr);
             title("Fine-gridded correlation near coarse maximum")
 
-            sprintf("Coarse : %.2g\nFine : %.2g", -corr_z(max_z), -fine_dim(max_dz) * dz)
+            fprintf("Coarse : %.2g\nFine : %.2g", -corr_z(max_z), -fine_dim(max_dz) * dz)
             figure(1)
             waitforbuttonpress();
             end
         end
     end
-    it_time = toc();
-    fprintf("\nProgreso = %.1f %%\nRestante = %.1f min\n", ...
-                                        t / (size(sonograms, 1)-1) * 100,...
+    if graf
+        it_time = toc();
+        fprintf("\nProgreso = %.1f %%\nRestante = %.1f min\n", ...
+                                 t / (size(sonograms, 1)-1) * 100, ...
                                  it_time * (size(sonograms, 1)-1 - t) / 60)
+    end
 end
-
-
 end
-

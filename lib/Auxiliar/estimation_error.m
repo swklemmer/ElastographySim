@@ -11,7 +11,7 @@ u_err = abs(u_est - u_inter);
 
 % Calculate mean error inside phantom
 
-mean_err = mean(u_err(est_x >= 0 & est_x <= phan_dim(1),...
+mean_err = mean(u_err(est_x >= 0 & est_x <= phan_dim(1), ...
                       est_z >= 0 & est_z <= phan_dim(2)), 'all');
 end
 

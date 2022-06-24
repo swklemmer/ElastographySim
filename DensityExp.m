@@ -74,19 +74,22 @@ p_rayleigh = std_ .* exp( - std_.^2 / 2);
 fig = figure(1);
 fig.Position = [0, 500, 500, 250];
 hold on
+i = 0;
 for d = 5:length(d_list)
     phantom_crop = squeeze(sonograms(d, :, 2e-3 < img_z & img_z < 17e-3));
     inten_sd = std(phantom_crop, 0, 'all');
     histogram(phantom_crop / inten_sd, 'Normalization', 'pdf',...
-        'FaceAlpha', 0.3)
+        'FaceAlpha', 1 - 0.1 * i)
+    i = i+1;
 end
 plot(std_, p_rayleigh, 'LineStyle', '--', 'Color', 'k')
 hold off
 xlim([-0.1, 5])
+ylim([0, 0.8])
 xlabel("Amplitude / STD")
 ylabel("Amplitude PDF")
 title("Effect of scatterer density on B-Mode Histograms")
-legend([compose('%.1f scat/cell', d_list(5:end) / (cell_vol * 1e9)) "Rayleigh distribution"])
+legend([compose('% 3d scat/cell', d_list(5:end)) "Rayleigh distribution"])
 grid on
 
 
@@ -100,8 +103,9 @@ xlabel(t, "Depth dimension [mm]")
 ylabel(t, "Lateral dimension [mm]")
 for d = 1:length(d_list)
     nexttile
-    show_sonogram(img_x, img_z, sonograms, 0, [10, 15] * 1e-3, d, ...
-        sprintf("%.1f scat/cell", d_list(d) / (cell_vol * 1e9)))
+    show_sonogram(img_x, img_z, sonograms, 0, [10, 15] * 1e-3, d, '')
+    title(sprintf("%d sct/cell = %.1f sct/mm^3", d_list(d), ...
+        d_list(d) / (cell_vol * 1e9)), 'FontWeight', 'normal');
     xlabel("")
     ylabel("")
     if d ~= 4 && d ~= 8

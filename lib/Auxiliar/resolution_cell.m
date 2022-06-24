@@ -14,7 +14,7 @@ n_active = sim_data(9);  % Nr. of active elements
 % Create analysis volume
 x_dim = (-2:0.02:2)*1e-3;
 y_dim = (-2:0.02:2)*1e-3;
-z_dim = (-3:0.02:5)*1e-3 + tx_focus;
+z_dim = (-2:0.02:2)*1e-3 + tx_focus;
 
 % Configurate simulation
 simulation_config(sim_data);
@@ -106,28 +106,28 @@ xdc_free(trans_rx);
 % Show results
 if graf
 fig = figure(1);
-plot(x_dim, pul_ech_x);
-fig.Position = [0, 200, 300, 300];
+plot(x_dim * 1e3, pul_ech_x);
+fig.Position = [0, 200, 300, 200];
 yline(10^(-6/20), '--')
-xlabel("Lateral distance [m]")
+xlabel("Lateral distance [mm]")
 ylabel("Normalized transducer response")
 title("-6dB resolution cell in X direction")
 grid on
 
 fig = figure(2);
-plot(y_dim, pul_ech_y);
-fig.Position = [400, 200, 300, 300];
+plot(y_dim * 1e3, pul_ech_y);
+fig.Position = [400, 200, 300, 200];
 yline(10^(-6/20), '--')
-xlabel("Elevation distance [m]")
+xlabel("Elevation distance [mm]")
 ylabel("Normalized transducer response")
 title("-6dB resolution cell in Y direction")
 grid on
 
 fig = figure(3);
-plot(z_dim, pul_ech_z);
-fig.Position = [800, 200, 300, 300];
+plot(z_dim * 1e3, pul_ech_z);
+fig.Position = [800, 200, 300, 200];
 yline(10^(-6/20), '--')
-xlabel("Axial distance [m]")
+xlabel("Axial distance [mm]")
 ylabel("Normalized transducer response")
 title("-6dB resolution cell in Z direction")
 grid on

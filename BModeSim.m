@@ -17,10 +17,10 @@ trans_rx = create_transducer(sim_data);
 
 % Scatterer density calculation
 cell_vol = resolution_cell(sim_data, 0);
-density = 6 / (cell_vol * 1e9); % [scatters/mm^3]
+density = 4 / (cell_vol * 1e9); % [scatters/mm^3]
 
 %%
-for E = [6000, 4000, 8500, 10000]
+for E = [4000, 6000, 8500, 10000]
 
     % Import FEM model info
     fem_file = sprintf("input/u_%d.h5", E);
@@ -63,7 +63,6 @@ for E = [6000, 4000, 8500, 10000]
     img_z = img_z - 0.62e-3; % WHY?
     save(sprintf('output/s_%d_d%.1f.mat', E, density),...
         'sonograms', 'img_x', 'img_z');
-    break
 end
 
 % Terminate program and free memory 
@@ -72,8 +71,8 @@ xdc_free(trans_rx)
 field_end()
 
 %% Load Sonograms
-E = 6000;    % Young's Modulus [Pa]
-density = 6 / (cell_vol * 1e9); % [scatters/mm^3]
+E = 10000;    % Young's Modulus [Pa]
+density = 4 / (cell_vol * 1e9); % [scatters/mm^3]
 load(sprintf('output/s_%d_d%.1f.mat', E, density), 'sonograms', 'img_x', 'img_z');
 
 %% Apply logarithmic compression
