@@ -116,6 +116,21 @@ xdc_free(trans_rx)
 field_end()
 
 %% Show results
+load(sprintf("out_experiments/random_win_experiment_d%.1f.mat", density),...
+    'errors', 'win_list')
+
+fig = figure(1);
+fig.Position = [500, 500, 500, 300];
+boxchart(squeeze(errors(2, :, :))' / null_err);
+
+ylim([0, 5])
+set(gca,'XTickLabel', win_list * 1e3);
+grid on
+ylabel("Mean Absolute Error / Null Error")
+xlabel("Window length [mm]")
+title("Effect of window length on displacement estimation error")
+
+%%
 load(sprintf("out_experiments/random2_win_experiment_d%.1f.mat", density),...
     'errors', 'win_list')
 
@@ -123,7 +138,7 @@ error_vec = [reshape(errors(1, :, :), [], 1); reshape(errors(2, :, :), [], 1)];
 error_win = repmat((1:length(win_list))', 40, 1);
 error_filt = [zeros(length(error_vec)/2, 1); ones(length(error_vec)/2, 1)];
 
-fig = figure(1);
+fig = figure(2);
 fig.Position = [500, 500, 500, 300];
 boxchart(error_win, error_vec, 'GroupByColor', error_filt);
 
@@ -132,8 +147,8 @@ legend({'Pre-Filter', 'Post-Filter'})
 
 labels_x = repmat(" ", length(win_list) * 2, 1);
 labels_x(2:2:end) = compose("%.2f", win_list' * 1e3);
-
 set(gca,'XTickLabel', labels_x);
+
 grid on
 ylabel("Mean Absolute Error / Null Error")
 xlabel("Window length [mm]")
